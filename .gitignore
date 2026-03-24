@@ -13,3 +13,14 @@
 *.swp
 Thumbs.db
 .Trashes
+.ansible
+
+# Packer - local ISO storage (large binaries, never commit)
+packer/isos/
+packer/build*
+
+# Packer - build outputs and manifests
+packer/**/builds/
+
+# Packer - user-specific variable files (filled-in copies of *.example)
+packer/vsphere.pkrvars.hcl

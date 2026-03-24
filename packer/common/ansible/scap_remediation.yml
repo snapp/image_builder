@@ -1,0 +1,85 @@
+---
+
+- name: Security Content Automation Protocol (SCAP) Remediation
+  hosts: default
+  become: true
+  gather_facts: true
+  vars:
+    # Profile ID passed to oscap.
+    # Override via Packer --extra-vars to target a different standard (CIS L1, FIPS, DISA STIG, PCI-DSS, etc.).
+    # If not provided, all tasks in this play are skipped.
+    #
+    # Discover available profiles for a given datastream:
+    #   oscap info --profiles <scap_datastream>
+    #
+    # Common RHEL profile IDs:
+    #   CIS L1 Server:  xccdf_org.ssgproject.content_profile_cis_server_l1
+    #   CIS L2 Server:  xccdf_org.ssgproject.content_profile_cis
+    #   DISA STIG:      xccdf_org.ssgproject.content_profile_stig
+    #   FIPS 140:       xccdf_org.ssgproject.content_profile_fips
+    #   PCI-DSS:        xccdf_org.ssgproject.content_profile_pci-dss
+
+    # Datastream path is version-specific
+    scap_datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml"
+
+    scap_results_dir: "/var/log/scap"
+    scap_report_prefix: "scap-remediation"
+    scap_timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+  pre_tasks:
+    - name: SCAP Profile
+      ansible.builtin.debug:
+        msg: "{{ scap_profile | default('undefined') }}"
+
+    - name: Setup SCAP results directory
+      ansible.builtin.file:
+        path: "{{ scap_results_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0750"
+      when: scap_profile is defined and scap_profile | length > 0
+  tasks:
+    - name: Run SCAP remediation
+      ansible.builtin.command:
+        cmd: >
+          oscap xccdf eval
+          --remediate
+          --profile {{ scap_profile }}
+          --results {{ scap_results_dir }}/{{ scap_report_prefix }}-results-{{ scap_timestamp }}.xml
+          --report {{ scap_results_dir }}/{{ scap_report_prefix }}-report-{{ scap_timestamp }}.html
+          {{ scap_datastream }}
+      register: oscap_result
+      # Allow oscap exits 2 when rule failures exist (expected pre-remediation), and 0 when all pass
+      failed_when: oscap_result.rc not in [0, 2]
+      changed_when: oscap_result.rc == 2
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Print SCAP summary
+      ansible.builtin.debug:
+        msg: "{{ oscap_result.stdout_lines }}"
+      when: scap_profile is defined and scap_profile | length > 0
+  post_tasks:
+    - name: Stat the SCAP report
+      ansible.builtin.stat:
+        path: "{{ scap_results_dir }}/{{ scap_report_prefix }}-report-{{ scap_timestamp }}.html"
+      register: scap_report_stat
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Confirm report was written
+      ansible.builtin.assert:
+        that: scap_report_stat.stat.exists
+        fail_msg: "SCAP HTML report was not written — check oscap output."
+        success_msg: "SCAP report: {{ scap_results_dir }}/{{ scap_report_prefix }}-report-{{ scap_timestamp }}.html"
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Fetch SCAP report and results
+      ansible.builtin.fetch:
+        src: "{{ item }}"
+        dest: "{{ scap_report_dir }}"
+        flat: true
+      loop:
+        - "{{ scap_results_dir }}/{{ scap_report_prefix }}-results-{{ scap_timestamp }}.xml"
+        - "{{ scap_results_dir }}/{{ scap_report_prefix }}-report-{{ scap_timestamp }}.html"
+      when:
+        - scap_profile is defined and scap_profile | length > 0
+        - scap_report_dir is defined and scap_report_dir | length > 0

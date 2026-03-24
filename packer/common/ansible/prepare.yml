@@ -1,0 +1,67 @@
+---
+- name: Prepare virtual machine for First-Boot IdM Registration
+  hosts: default
+  become: true
+  vars:
+    idm_domain: "ordas.brq.internal"
+    idm_realm: "ORDAS.BRQ.INTERNAL"
+    idm_server: "idm-1.ordas.osp.tamlab.brq2.redhat.com"
+
+    # FIX These would typically be passed via Packer/Ansible extra-vars
+    idm_otp: "YOUR_OTP_HERE"
+
+  tasks:
+    - name: Install required IdM client packages
+      ansible.builtin.dnf:
+        name: ipa-client
+        state: present
+
+    - name: Create IdM registration script
+      ansible.builtin.copy:
+        dest: /usr/local/bin/idm-register.sh
+        mode: '0700'
+        owner: root
+        content: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          # Wait for network to be fully online
+          until ping -c1 $(vmtoolsd --cmd "info-get guestinfo.redhat_idm_server") &>/dev/null; do sleep 5; done
+
+          # Register with Red Hat Identity Management (IdM)
+          ipa-client-install --unattended \
+            --domain=$(vmtoolsd --cmd "info-get guestinfo.redhat_idm_domain") \
+            --server=$(vmtoolsd --cmd "info-get guestinfo.redhat_idm_server") \
+            --realm=$(vmtoolsd --cmd "info-get guestinfo.redhat_idm_realm") \
+            --hostname="$(hostname -f)" \
+            --password=$(vmtoolsd --cmd 'info-get guestinfo.redhat_idm_otp') \
+            --mkhomedir \
+            --request-cert \
+            --fixed-primary
+
+          # Disable this service after successful registration
+          systemctl disable idm-first-boot.service
+
+    - name: Create systemd unit for first-boot registration
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/idm-first-boot.service
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=First-boot IdM Registration
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/local/bin/idm-register.sh
+          RemainAfterExit=yes
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Enable the first-boot service
+      ansible.builtin.systemd:
+        name: idm-first-boot.service
+        enabled: true
+        daemon_reload: true

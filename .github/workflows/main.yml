@@ -2,6 +2,7 @@
 
 name: CI
 
+# yamllint disable-line rule:truthy
 on:
   # Run against all pushes (direct commits, also merged PRs)
   push:

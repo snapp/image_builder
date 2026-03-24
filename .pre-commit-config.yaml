@@ -8,25 +8,56 @@ ci:
 
 repos:
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+    rev: v8.30.0
     hooks:
       - id: gitleaks
 
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v26.3.0
+    hooks:
+      - id: ansible-lint
+        language_version: python3.12
+        additional_dependencies:
+          - requests>=1.1
+
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        language_version: python3.12
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v6.0.0
     hooks:
       - id: check-added-large-files
+      - id: check-ast
       - id: check-executables-have-shebangs
+      - id: check-toml
       - id: check-json
       - id: check-merge-conflict
       - id: check-symlinks
-      - id: check-toml
+      - id: check-yaml
         exclude: .*/\.github/.*
       - id: end-of-file-fixer
+      - id: fix-encoding-pragma
       - id: mixed-line-ending
-        args: [--fix=lf]
+        args:
+          - --fix=lf
       - id: pretty-format-json
+        args:
+          - --autofix          # Enable autofixing
+          - --indent=2         # Specify indentation
+          - --no-ensure-ascii  # handle non-ascii
+      - id: requirements-txt-fixer
       - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: packer-fmt
+        name: Packer fmt
+        entry: packer fmt -check
+        language: system
+        files: \.pkr\.hcl$
+
       # FIXME|2024-04-16|: This hook is disabled because `grep` is not present in repository https://github.com/pre-commit/pre-commit-hooks.
       # - id: grep
       #   name: Check for FIXME comments

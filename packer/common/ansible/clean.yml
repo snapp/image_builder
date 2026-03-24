@@ -1,0 +1,63 @@
+---
+
+- name: Prepare virtual machine for image capture
+  hosts: default
+  become: true
+  gather_facts: true
+  pre_tasks:
+    - name: Check if reboot is required
+      ansible.builtin.command:
+        cmd: needs-restarting -r
+      register: needs_restarting
+      failed_when: needs_restarting.rc not in [0, 1]
+      changed_when: false
+
+    - name: Reboot if required and wait for host to return
+      ansible.builtin.reboot:
+        msg: "Rebooting after SCAP remediation"
+        reboot_timeout: 300
+      when: needs_restarting.rc == 1
+  tasks:
+    - name: Prepare Machine-ID for first boot
+      ansible.builtin.shell: |
+        truncate -s 0 /etc/machine-id
+        rm -f /var/lib/dbus/machine-id
+      changed_when: true
+
+    - name: Ensure the cloned VM starts as a fresh cloud-init instance
+      ansible.builtin.command: cloud-init clean --logs --seed
+      changed_when: true
+
+    - name: Clean DNF cache
+      ansible.builtin.command: dnf clean all
+      changed_when: true
+
+    - name: Remove Installer Artifacts and Shutdown
+      # systemd-run schedules the shutdown as a detached transient unit so this task exits cleanly before the VM powers off.
+      # sed edits passwd/shadow directly to avoid userdel triggering systemd-logind KillUserProcesses on the active SSH session.
+      # root shell and /var/logs are truncated and binary journal is vacuumed
+        # semanage login -d {{ ansible_user }}
+
+      ansible.builtin.shell: |
+        systemd-run --on-active=10 /sbin/shutdown -h now
+        rm -rf /tmp/* /var/tmp/*
+        rm -f /etc/NetworkManager/system-connections/*
+        rm -f /root/anaconda-ks.cfg
+        rm -f /root/ks-post.log
+        rm -f /root/original-ks.cfg
+        rm -f /var/log/cloud-init*
+        rm -f /var/log/vmware*
+        rm -f /var/log/dnf*
+        rm -rf /var/log/anaconda
+        rm -rf /var/log/rhsm
+        rm -rf /var/cache
+        rm -f /etc/ssh/ssh_host_*_key{,.pub}
+        rm -f /etc/ssh/sshd_config.d/99-packer-provisioner.conf
+        rm -rf "/home/{{ ansible_user }}" /home/cloud-user
+        rm -f /etc/sudoers.d/*
+        sed -i "/^{{ ansible_user }}:/d;/^cloud-user:/d;" /etc/passwd /etc/passwd- /etc/shadow /etc/shadow- /etc/group /etc/group-
+        journalctl --vacuum-time=1s
+        find /var/log -type f -not -path '/var/log/aide/*' -not -path '/var/log/scap/*' -exec truncate -s 0 {} \;
+        history -c
+        truncate -s 0 /root/.bash_history
+      changed_when: true
