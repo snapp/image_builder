@@ -1,0 +1,45 @@
+# Copy this file to vsphere.pkrvars.hcl and fill in your environment values.
+# vsphere.pkrvars.hcl is gitignored — do not commit credentials.
+
+# ---------------------------------------------------------------------------
+# vSphere connection
+# ---------------------------------------------------------------------------
+
+# Hostname or IP of the vCenter server (without https://)
+vsphere_server = "vcenter.example.com"
+
+vsphere_user     = "packer@vsphere.local"
+vsphere_password = "changeme"
+
+vsphere_datacenter = "dc01"
+vsphere_cluster    = "cluster01"
+
+# Port group name the build VM will be attached to
+vsphere_network = "VM Network"
+
+# vSphere folder path where the finished template will be stored
+vsphere_folder = "templates"
+
+# Datastore where the build VM disks are provisioned
+vsphere_vm_datastore = "datastore01"
+
+# Datastore where the RHEL DVD ISO is stored
+vsphere_iso_datastore = "iso-datastore"
+
+# ---------------------------------------------------------------------------
+# Packer HTTP server
+#
+# During the build Packer serves the Kickstart file over HTTP. The VM must
+# be able to reach this address on the port Packer chooses (range
+# 57100-57199).
+#
+# Set this to the IP of the machine running `packer build` that is reachable
+# FROM the vSphere network — not the IP of vCenter or the build VM itself.
+#
+# Common cases:
+#   - Single NIC host:  use that NIC's IP
+#   - Multi-NIC host:   use the NIC on the same L2/L3 segment as vSphere
+#   - NAT/VPN:          use the IP on the side that vSphere can route to
+# ---------------------------------------------------------------------------
+
+packer_http_ip = "192.168.1.10"

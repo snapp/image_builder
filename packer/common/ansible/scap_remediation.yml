@@ -1,0 +1,111 @@
+---
+
+- name: Security Content Automation Protocol (SCAP) Remediation
+  hosts: default
+  gather_facts: true
+  become: true
+  tags:
+    - scap
+    - scap_remediation
+  vars:
+    # Profile ID passed to oscap.
+    #
+    # Discover available profiles for a given datastream:
+    #   oscap info --profiles <scap_datastream>
+    #
+    # Common RHEL profile IDs:
+    #   CIS L1 Server:  xccdf_org.ssgproject.content_profile_cis_server_l1
+    #   CIS L2 Server:  xccdf_org.ssgproject.content_profile_cis
+    #   DISA STIG:      xccdf_org.ssgproject.content_profile_stig
+    #   FIPS 140:       xccdf_org.ssgproject.content_profile_fips
+    #   PCI-DSS:        xccdf_org.ssgproject.content_profile_pci-dss
+    #
+    # Example CIS L2 Server
+    # scap_profile: xccdf_org.ssgproject.content_profile_cis
+
+    scap_datastream: "/usr/share/xml/scap/ssg/content/ssg-rhel{{ ansible_distribution_major_version }}-ds.xml"
+
+    scap_results_dir: "/var/log/scap"
+    scap_report_prefix: "scap-remediation"
+    scap_timestamp: "{{ ansible_date_time.iso8601_basic_short }}"
+    scap_log_file: "{{ scap_results_dir }}/{{ scap_report_prefix }}-{{ scap_timestamp }}.log"
+    scap_report_file: "{{ scap_results_dir }}/{{ scap_report_prefix }}-report-{{ scap_timestamp }}.html"
+    scap_results_file: "{{ scap_results_dir }}/{{ scap_report_prefix }}-results-{{ scap_timestamp }}.xml"
+  pre_tasks:
+    - name: SCAP Profile
+      ansible.builtin.debug:
+        msg: "{{ scap_profile | default('undefined') }}"
+
+    - name: Setup SCAP results directory
+      ansible.builtin.file:
+        path: "{{ scap_results_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0750"
+      when: scap_profile is defined and scap_profile | length > 0
+  tasks:
+    - name: Run SCAP remediation
+      ansible.builtin.command:
+        cmd: >-
+          oscap xccdf eval
+          --remediate
+          --profile {{ scap_profile }}
+          --results {{ scap_results_file }}
+          {{ scap_datastream }}
+      register: oscap_result
+      # oscap exits 2 when rule failures remain after remediation, 0 when all pass
+      failed_when: oscap_result.rc not in [0, 2]
+      changed_when: oscap_result.rc == 2
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Write SCAP remediation log file
+      ansible.builtin.copy:
+        content: "{{ oscap_result.stdout }}\n\n{{ oscap_result.stderr }}"
+        dest: "{{ scap_log_file }}"
+        owner: root
+        group: root
+        mode: "0640"
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Print SCAP summary
+      ansible.builtin.debug:
+        msg: "{{ oscap_result.stdout_lines }}"
+      when: scap_profile is defined and scap_profile | length > 0
+  post_tasks:
+    - name: Stat the SCAP results
+      ansible.builtin.stat:
+        path: "{{ scap_results_file }}"
+      register: scap_results_stat
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Confirm results were written
+      ansible.builtin.assert:
+        that: scap_results_stat.stat.exists
+        fail_msg: "SCAP XML results were not written — check {{ scap_log_file }}."
+        success_msg: "SCAP results: {{ scap_results_file }}"
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Generate SCAP HTML report
+      ansible.builtin.command:
+        cmd: >
+          oscap xccdf generate report
+          --output {{ scap_report_file }}
+          {{ scap_results_file }}
+      register: report_result
+      failed_when: report_result.rc > 0
+      changed_when: report_result.rc == 0
+      when: scap_profile is defined and scap_profile | length > 0
+
+    - name: Fetch SCAP report and results
+      ansible.builtin.fetch:
+        src: "{{ item }}"
+        dest: "{{ scap_report_dir }}"
+        flat: false
+      loop:
+        - scap_log_file
+        - scap_report_file
+        - scap_results_file
+      when:
+        - scap_profile is defined and scap_profile | length > 0
+        - scap_report_dir is defined and scap_report_dir | length > 0

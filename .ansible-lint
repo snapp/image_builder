@@ -1,0 +1,56 @@
+---
+# ansible-lint configuration
+# https://ansible.readthedocs.io/projects/lint/configuring/
+#
+# Production profile is required for AAP validated/certified content.
+# Profiles are cumulative: production > shared > safety > moderate > basic > min
+profile: production
+
+# Offline mode prevents ansible-lint from installing collection dependencies.
+offline: false
+
+# Exclude paths from linting.
+exclude_paths:
+  - .ansible/
+  - .cache/
+  - .git/
+  - .github/
+  - changelogs/
+
+# Opt-in rules not included in any profile but recommended for production
+enable_list:
+  - args                     # validate module argument names and types
+  - empty-string-compare     # don't compare to empty string, use 'length > 0'
+  - no-log-password          # flag tasks with password params missing no_log
+  - no-same-owner            # flag file tasks that may unintentionally change ownership
+  - name[prefix]             # enforce consistent task name prefixes within roles
+  # - galaxy-version-incorrect # flag galaxy.yml version mismatches; re-enable before publishing to Automation Hub
+
+# warn_list rules produce warnings but do not cause a non-zero exit code.
+# Keep this list minimal — prefer fixing violations over suppressing them.
+# Rules here should be temporary or genuinely ambiguous for this codebase.
+#
+# Default implicit warn_list includes: experimental, jinja[spacing], fqcn[deep]
+warn_list:
+  - experimental            # rules still under development — review periodically
+
+# skip_list silently ignores rules entirely and hides them from output.
+# Use inline '# noqa: rule-id' on specific tasks instead of blanket skips here.
+# This list should be empty for a production collection.
+skip_list: []
+
+# Enforce snake_case for all variable names.
+var_naming_pattern: "^[a-z_][a-z0-9_]*$"
+
+# Prevent loop variable collisions by requiring a role-specific or double-underscore prefix.
+# {role} is replaced with the role name at lint time.
+loop_var_prefix: "^(__|{role}_)"
+
+# Use default rules bundled with ansible-lint
+use_default_rules: true
+
+# Progressive mode reports only violations that are new relative to prior commit
+progressive: false
+
+# Strict mode causes warnings to also produce a non-zero exit code.
+strict: true
