@@ -1,0 +1,53 @@
+# https://osbuild.org/docs/user-guide/blueprint-reference
+
+version = '1.0.0'
+
+name = 'RHEL-10-CIS-L1-SERVER'
+
+# https://www.cisecurity.org/cis-benchmarks
+# https://resources.cisecurity.org/benchmarks
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel10-guide-cis_server_l1.html
+description = '''
+Red Hat Enterprise Linux (RHEL) 10
+Center for Internet Security® (CIS) Level 1 Server
+Profile ID:  xccdf_org.ssgproject.content_profile_cis_server_l1
+Benchmark ID:  xccdf_org.ssgproject.content_benchmark_RHEL-10
+'''
+
+distro = 'rhel-10'
+
+[customizations]
+partitioning_mode = 'auto-lvm'
+
+[customizations.kernel]
+append = ''
+
+[customizations.openscap]
+profile_id = 'xccdf_org.ssgproject.content_profile_cis_server_l1'
+
+[customizations.services]
+enabled = ['crond', 'firewalld', 'systemd-journald']
+disabled = ['nftables']
+masked = []
+
+[[customizations.filesystem]]
+mountpoint = '/tmp'
+size = 1073741824
+
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
+[[packages]]
+name = 'aide'
+version = '*'
+
+# CCE-86760-6 Add journald remote log host support
+[[packages]]
+name = 'systemd-journal-remote'
+version = '*'

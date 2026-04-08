@@ -1,0 +1,54 @@
+# https://osbuild.org/docs/user-guide/blueprint-reference
+
+version = '1.0.0'
+
+name = 'RHEL-10-NIST-PCI-DSS'
+
+# http://doi.org/10.6028/NIST.SP.1800-16
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel10-guide-pci-dss.html
+description = '''
+Red Hat Enterprise Linux (RHEL) 10
+National Institute of Standards and Technology (NIST)
+Payment Card Industry - Data Security Standard (PCI-DSS) (NIST 1800-16)
+Profile ID:  xccdf_org.ssgproject.content_profile_pci-dss
+Benchmark ID:  xccdf_org.ssgproject.content_benchmark_RHEL-10
+'''
+
+distro = 'rhel-10'
+
+[customizations]
+partitioning_mode = 'auto-lvm'
+
+[customizations.kernel]
+append = 'audit=1 audit_backlog_limit=8192'
+
+[customizations.openscap]
+profile_id = 'xccdf_org.ssgproject.content_profile_pci-dss'
+
+[customizations.services]
+enabled = ['firewalld', 'auditd']
+disabled = ['nftables']
+masked = []
+
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
+[[packages]]
+name = 'aide'
+version = '*'
+
+# CCE-83648-6 Plugins for the real-time interface to the audit subsystem
+[[packages]]
+name = 'audispd-plugins'
+version = '*'
+
+# CCE-86612-9 Enable LUKS for dm-crypt Support
+[[packages]]
+name = 'cryptsetup'
+version = '*'

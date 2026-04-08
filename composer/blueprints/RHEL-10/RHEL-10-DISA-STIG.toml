@@ -1,0 +1,133 @@
+# https://osbuild.org/docs/user-guide/blueprint-reference
+
+version = '1.0.0'
+
+name = 'RHEL-10-DISA-STIG'
+
+# https://public.cyber.mil/stigs
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel10-guide-stig.html
+description = '''
+Red Hat Enterprise Linux (RHEL) 10
+Defense Information Systems Agency (DISA) Security Technical Implementation Guide (STIG)
+Profile ID:  xccdf_org.ssgproject.content_profile_stig
+Benchmark ID:  xccdf_org.ssgproject.content_benchmark_RHEL-10
+'''
+
+distro = 'rhel-10'
+
+[customizations]
+partitioning_mode = 'auto-lvm'
+fips = true
+
+# audit                Enable kernel audit subsystem before any userspace processes start
+# audit_backlog_limit  Increase kernel audit event backlog queue size
+# fips                 Enforce FIPS 140 approved cryptographic algorithms only
+# slub_debug           Poison freed pages at SLUB allocator level
+# page_poison          Poison freed pages at Page allocator level
+# vsyscall             Disable legacy vsyscall interface
+# pti                  Enable Kernel Page Table Isolation
+[customizations.kernel]
+append = 'audit=1 audit_backlog_limit=8192 fips=1 slub_debug=P page_poison=1 vsyscall=none pti=on'
+
+[customizations.openscap]
+profile_id = 'xccdf_org.ssgproject.content_profile_stig'
+
+[customizations.services]
+enabled = ['usbguard', 'sshd', 'chronyd', 'fapolicyd', 'firewalld', 'systemd-journald', 'rsyslog', 'auditd', 'pcscd', 'sssd']
+disabled = ['kdump', 'debug-shell']
+masked = []
+
+[[customizations.filesystem]]
+mountpoint = '/'
+size = 3221225472
+
+[[customizations.filesystem]]
+mountpoint = '/boot'
+size = 805306368
+
+[[customizations.filesystem]]
+mountpoint = '/home'
+size = 1073741824
+
+[[customizations.filesystem]]
+mountpoint = '/tmp'
+size = 1073741824
+
+[[customizations.filesystem]]
+mountpoint = '/var'
+size = 2147483648
+
+[[customizations.filesystem]]
+mountpoint = '/var/log'
+size = 1073741824
+
+[[customizations.filesystem]]
+mountpoint = '/var/log/audit'
+size = 536870912
+
+[[customizations.filesystem]]
+mountpoint = '/var/tmp'
+size = 536870912
+
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
+[[packages]]
+name = 'aide'
+version = '*'
+
+# CCE-83648-6 Plugins for the real-time interface to the audit subsystem
+[[packages]]
+name = 'audispd-plugins'
+version = '*'
+
+# CCE-84224-5 File Access Policy Daemon
+[[packages]]
+name = 'fapolicyd'
+version = '*'
+
+# CCE-83494-5 SSL, TLS, and DTLS protocols
+[[packages]]
+name = 'gnutls-utils'
+version = '*'
+
+# CCE-84068-6 Secure tunnels via IPsec and IKE
+[[packages]]
+name = 'libreswan'
+version = '*'
+
+# CCE-83595-9 Multifactor Authentication
+[[packages]]
+name = 'opensc'
+version = '*'
+
+# CCE-86642-6 Smart Card Support
+[[packages]]
+name = 'pkcs11-provider'
+version = '*'
+
+# CCE-83987-8 rsyslog daemon TLS support
+[[packages]]
+name = 'rsyslog-gnutls'
+version = '*'
+
+# CCE-86608-7 Mail server for sending email
+[[packages]]
+name = 's-nail'
+version = '*'
+
+# CCE-88372-8 System Security Services (SSS)
+[[packages]]
+name = 'sssd'
+version = '*'
+
+# CCE-84203-9 Rogue USB device protection
+[[packages]]
+name = 'usbguard'
+version = '*'
