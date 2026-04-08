@@ -1,0 +1,81 @@
+# https://osbuild.org/docs/user-guide/blueprint-reference
+
+version = '1.0.0'
+
+name = 'RHEL-10-CIS-L2-SERVER'
+
+# https://www.cisecurity.org/cis-benchmarks
+# https://resources.cisecurity.org/benchmarks
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel10-guide-cis.html
+description = '''
+Red Hat Enterprise Linux (RHEL) 10
+Center for Internet Security® (CIS) Level 2 Server
+Profile ID:  xccdf_org.ssgproject.content_profile_cis
+Benchmark ID:  xccdf_org.ssgproject.content_benchmark_RHEL-10
+'''
+
+distro = 'rhel-10'
+
+[customizations]
+partitioning_mode = 'auto-lvm'
+
+[customizations.kernel]
+append = 'audit=1 audit_backlog_limit=8192'
+
+[customizations.openscap]
+profile_id = 'xccdf_org.ssgproject.content_profile_cis'
+
+[customizations.services]
+enabled = ['crond', 'firewalld', 'systemd-journald', 'auditd']
+disabled = ['nftables']
+masked = []
+
+[[customizations.filesystem]]
+mountpoint = '/'
+size = 3221225472
+
+[[customizations.filesystem]]
+mountpoint = '/boot'
+size = 805306368
+
+[[customizations.filesystem]]
+mountpoint = '/home'
+size = 1073741824
+
+[[customizations.filesystem]]
+mountpoint = '/tmp'
+size = 1073741824
+
+[[customizations.filesystem]]
+mountpoint = '/var'
+size = 2147483648
+
+[[customizations.filesystem]]
+mountpoint = '/var/log'
+size = 1073741824
+
+[[customizations.filesystem]]
+mountpoint = '/var/log/audit'
+size = 536870912
+
+[[customizations.filesystem]]
+mountpoint = '/var/tmp'
+size = 536870912
+
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
+[[packages]]
+name = 'aide'
+version = '*'
+
+# CCE-86760-6 Add journald remote log host support
+[[packages]]
+name = 'systemd-journal-remote'
+version = '*'

@@ -1,0 +1,92 @@
+# https://osbuild.org/docs/user-guide/blueprint-reference
+
+version = '1.0.0'
+
+name = 'RHEL-10'
+
+# https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/10
+description = 'Red Hat Enterprise Linux (RHEL) 10'
+
+distro = 'rhel-10'
+
+[customizations]
+# hostname = 'custombase'
+# installation_device = '/dev/vda'
+partitioning_mode = 'auto-lvm'
+
+# [[customizations.directories]]
+# path = '/etc/foo'
+# mode = '0755'
+# user = 'root'
+# group = 'root'
+# ensure_parents = false
+
+# [[customizations.files]]
+# path = '/etc/sudoers.d/ansible'
+# mode = '0440'
+# user = 'root'
+# group = 'root'
+# data = 'ansible  ALL=(ALL)  NOPASSWD: ALL'
+
+# [customizations.firewall]
+# ports = ['22:tcp', '80:tcp', 'imap:tcp', '53:tcp', '53:udp', '30000-32767:tcp', '30000-32767:udp']
+
+# [customizations.firewall.services]
+# enabled = ['ftp', 'ntp', 'dhcp']
+# disabled = ['telnet']
+
+# Anaconda installer (ISO) image type supports the following installer customizations:
+# [customizations.installer]
+# unattended = true
+# sudo-nopasswd = ['user', '%wheel']
+
+# [customizations.kernel]
+# append = 'net.ifnames.prefix=net quiet'
+
+# [customizations.locale]
+# languages = ['en_US.UTF-8']
+# keyboard = 'us'
+
+# [customizations.openscap]
+# datastream = '/usr/share/xml/scap/ssg/content/ssg-rhel9-ds.xml'
+# profile_id = 'xccdf_org.ssgproject.content_profile_cis'
+
+# [customizations.openscap.tailoring]
+# selected = [ 'xccdf_org.ssgproject.content_bind_crypto_policy' ]
+# unselected = [ 'grub2_password' ]
+
+# [[customizations.sshkey]]
+# user = 'root'
+# key = 'ssh-rsa AAAAB..REDACTED== Root Admin'
+
+# [customizations.timezone]
+# timezone = 'UTC'
+# ntpservers = ['0.rhel.pool.ntp.org', '1.rhel.pool.ntp.org', '2.rhel.pool.ntp.org']
+
+# [customizations.services]
+# enabled = ['sshd', 'cockpit.socket', 'httpd']
+# disabled = ['postfix', 'telnetd']
+# masked = ['rpcbind']
+
+# [[customizations.group]]
+# name = 'ansible'
+# gid = 888
+
+# [[customizations.user]]
+# name = 'ansible'
+# description = 'Ansible Service Account'
+# password = '<REDACTED>'
+# key = 'ssh-rsa AAAAB..REDACTED== Ansible Service Account'
+# home = '/var/lib/ansible/'
+# shell = '/usr/bin/bash'
+# groups = []
+# uid = 888
+# gid = 888
+
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'

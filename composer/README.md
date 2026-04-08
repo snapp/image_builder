@@ -10,36 +10,37 @@ Some blueprints target [Gold Image](https://access.redhat.com/documentation/en-u
 composer/
 └── blueprints/
     ├── RHEL-8/     # RHEL 8 blueprints
-    └── RHEL-9/     # RHEL 9 blueprints
+    ├── RHEL-9/     # RHEL 9 blueprints
+    └── RHEL-10/    # RHEL 10 blueprints
 ```
 
 ## Available Profiles
 
-| Profile | RHEL 8 | RHEL 9 |
-|---|:---:|:---:|
-| Base (Gold Image replica) | ✓ | ✓ |
-| CIS Level 1 Server | ✓ | ✓ |
-| CIS Level 1 Workstation | ✓ | ✓ |
-| CIS Level 2 Server | ✓ | ✓ |
-| CIS Level 2 Workstation | ✓ | ✓ |
-| DISA STIG | ✓ | ✓ |
-| DISA STIG (GUI) | ✓ | ✓ |
-| NIST CUI | ✓ | ✓ |
-| NIST HIPAA | ✓ | ✓ |
-| NIST PCI-DSS | ✓ | ✓ |
+| Profile | RHEL 8 | RHEL 9 | RHEL 10 |
+|---|:---:|:---:|:---:|
+| Base (Gold Image replica) | ✓ | ✓ | ✓ |
+| CIS Level 1 Server | ✓ | ✓ | ✓ |
+| CIS Level 1 Workstation | ✓ | ✓ | ✓ |
+| CIS Level 2 Server | ✓ | ✓ | ✓ |
+| CIS Level 2 Workstation | ✓ | ✓ | ✓ |
+| DISA STIG | ✓ | ✓ | ✓ |
+| DISA STIG (GUI) | ✓ | ✓ | ✓ |
+| NIST HIPAA | ✓ | ✓ | ✓ |
+| NIST PCI-DSS | ✓ | ✓ | ✓ |
+| NIST CUI | ✓ | ✓ | |
 
 ## Using Blueprints
 
 Push a blueprint to your Image Builder host with `composer-cli`:
 
 ```bash
-composer-cli blueprints push blueprints/RHEL-9/RHEL-9-CIS-L2-SERVER.toml
+composer-cli blueprints push blueprints/RHEL-10/RHEL-10-CIS-L2-SERVER.toml
 ```
 
 Start a compose (adjust output type as needed):
 
 ```bash
-composer-cli compose start RHEL-9-CIS-L2-SERVER qcow2
+composer-cli compose start RHEL-10-CIS-L2-SERVER qcow2
 ```
 
 ## Reference Documentation
