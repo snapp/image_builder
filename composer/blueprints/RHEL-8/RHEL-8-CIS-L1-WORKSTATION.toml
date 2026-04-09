@@ -6,6 +6,7 @@ name = 'RHEL-8-CIS-L1-WORKSTATION'
 
 # https://www.cisecurity.org/cis-benchmarks
 # https://resources.cisecurity.org/benchmarks
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel8-guide-cis_workstation_l1.html
 description = '''
 Red Hat Enterprise Linux (RHEL) 8
 Center for Internet Security® (CIS) Level 1 Workstation
@@ -33,34 +34,15 @@ masked = []
 mountpoint = '/tmp'
 size = 1073741824
 
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
 [[packages]]
 name = 'aide'
-version = '*'
-
-[[packages]]
-name = 'chrony'
-version = '*'
-
-[[packages]]
-name = 'firewalld'
-version = '*'
-
-[[packages]]
-name = 'libselinux'
-version = '*'
-
-[[packages]]
-name = 'libpwquality'
-version = '*'
-
-[[packages]]
-name = 'nftables'
-version = '*'
-
-[[packages]]
-name = 'rsyslog'
-version = '*'
-
-[[packages]]
-name = 'sudo'
 version = '*'

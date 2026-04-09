@@ -7,6 +7,7 @@ name = 'RHEL-8-NIST-CUI'
 # https://doi.org/10.6028/NIST.SP.800-171r3
 # https://doi.org/10.6028/NIST.SP.800-53B
 # https://doi.org/10.6028/NIST.FIPS.200
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel8-guide-cui.html
 description = '''
 Red Hat Enterprise Linux (RHEL) 8
 National Institute of Standards and Technology (NIST)
@@ -23,7 +24,7 @@ partitioning_mode = 'auto-lvm'
 fips = true
 
 [customizations.kernel]
-append = 'slub_debug=P page_poison=1 vsyscall=none pti=on random.trust_cpu=on audit_backlog_limit=8192 audit=1'
+append = 'audit=1 audit_backlog_limit=8192 fips=1'
 
 [customizations.openscap]
 profile_id = 'xccdf_org.ssgproject.content_profile_cui'
@@ -61,82 +62,40 @@ size = 1073741824
 mountpoint = '/var/tmp'
 size = 536870912
 
-[[packages]]
-name = 'aide'
-version = '*'
-
-[[packages]]
-name = 'audit'
-version = '*'
-
-[[packages]]
-name = 'chrony'
-version = '*'
-
-[[packages]]
-name = 'crypto-policies'
-version = '*'
-
-[[packages]]
-name = 'dnf-automatic'
-version = '*'
-
-[[packages]]
-name = 'dnf-plugin-subscription-manager'
-version = '*'
-
-[[packages]]
-name = 'fapolicyd'
-version = '*'
-
-[[packages]]
-name = 'gnutls-utils'
-version = '*'
-
-[[packages]]
-name = 'firewalld'
-version = '*'
-
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
 [[packages]]
 name = 'openscap-scanner'
 version = '*'
-
-[[packages]]
-name = 'openssh-clients'
-version = '*'
-
-[[packages]]
-name = 'openssh-server'
-version = '*'
-
-[[packages]]
-name = 'policycoreutils'
-version = '*'
-
-[[packages]]
-name = 'policycoreutils-python-utils'
-version = '*'
-
-[[packages]]
-name = 'rsyslog'
-version = '*'
-
 [[packages]]
 name = 'scap-security-guide'
 version = '*'
 
+# CCE-90843-4 Filesystem Integrity
 [[packages]]
-name = 'subscription-manager'
+name = 'aide'
 version = '*'
 
+# CCE-83454-9 CLI for automatic regular execution
 [[packages]]
-name = 'sudo'
+name = 'dnf-automatic'
 version = '*'
 
+# CCE-84224-5 File Access Policy Daemon
+[[packages]]
+name = 'fapolicyd'
+version = '*'
+
+# CCE-83494-5 SSL, TLS, and DTLS protocols
+[[packages]]
+name = 'gnutls-utils'
+version = '*'
+
+# CCE-80644-8 Console screen lock support
 [[packages]]
 name = 'tmux'
 version = '*'
 
+# CCE-84203-9 Rogue USB device protection
 [[packages]]
 name = 'usbguard'
 version = '*'

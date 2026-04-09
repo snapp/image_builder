@@ -5,6 +5,7 @@ version = '1.0.0'
 name = 'RHEL-8-DISA-STIG'
 
 # https://public.cyber.mil/stigs
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel8-guide-stig.html
 description = '''
 Red Hat Enterprise Linux (RHEL) 8
 Defense Information Systems Agency (DISA) Security Technical Implementation Guide (STIG)
@@ -18,8 +19,15 @@ distro = 'rhel-8'
 partitioning_mode = 'auto-lvm'
 fips = true
 
+# audit                Enable kernel audit subsystem before any userspace processes start
+# audit_backlog_limit  Increase kernel audit event backlog queue size
+# fips                 Enforce FIPS 140 approved cryptographic algorithms only
+# slub_debug           Poison freed pages at SLUB allocator level
+# page_poison          Poison freed pages at Page allocator level
+# vsyscall             Disable legacy vsyscall interface
+# pti                  Enable Kernel Page Table Isolation
 [customizations.kernel]
-append = 'slub_debug=P page_poison=1 vsyscall=none pti=on audit_backlog_limit=8192 audit=1'
+append = 'audit=1 audit_backlog_limit=8192 fips=1 slub_debug=P page_poison=1 vsyscall=none pti=on'
 
 [customizations.openscap]
 profile_id = 'xccdf_org.ssgproject.content_profile_stig'
@@ -61,62 +69,55 @@ size = 536870912
 mountpoint = '/var/tmp'
 size = 536870912
 
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
 [[packages]]
 name = 'aide'
 version = '*'
 
-[[packages]]
-name = 'audit'
-version = '*'
-
+# CCE-84224-5 File Access Policy Daemon
 [[packages]]
 name = 'fapolicyd'
 version = '*'
 
-[[packages]]
-name = 'firewalld'
-version = '*'
-
+# CCE-87036-0 Mail server for sending email
 [[packages]]
 name = 'mailx'
 version = '*'
 
+# CCE-83595-9 Multifactor Authentication
 [[packages]]
 name = 'opensc'
 version = '*'
 
-[[packages]]
-name = 'openssl-pkcs11'
-version = '*'
-
-[[packages]]
-name = 'openssh-server'
-version = '*'
-
-[[packages]]
-name = 'policycoreutils'
-version = '*'
-
+# CCE-85984-3 Mail server for sending email
 [[packages]]
 name = 'postfix'
 version = '*'
 
+# CCE-82968-9 Hardware random number generator tools
 [[packages]]
 name = 'rng-tools'
 version = '*'
 
-[[packages]]
-name = 'rsyslog'
-version = '*'
-
+# CCE-83987-8 rsyslog daemon TLS support
 [[packages]]
 name = 'rsyslog-gnutls'
 version = '*'
 
+# CCE-80644-8 Console screen lock support
 [[packages]]
 name = 'tmux'
 version = '*'
 
+# CCE-84203-9 Rogue USB device protection
 [[packages]]
 name = 'usbguard'
 version = '*'
