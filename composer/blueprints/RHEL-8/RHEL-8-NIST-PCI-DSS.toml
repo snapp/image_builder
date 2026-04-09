@@ -5,6 +5,7 @@ version = '1.0.0'
 name = 'RHEL-8-NIST-PCI-DSS'
 
 # http://doi.org/10.6028/NIST.SP.1800-16
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel8-guide-pci-dss.html
 description = '''
 Red Hat Enterprise Linux (RHEL) 8
 National Institute of Standards and Technology (NIST)
@@ -19,7 +20,7 @@ distro = 'rhel-8'
 partitioning_mode = 'auto-lvm'
 
 [customizations.kernel]
-append = 'audit_backlog_limit=8192 audit=1'
+append = 'audit=1 audit_backlog_limit=8192'
 
 [customizations.openscap]
 profile_id = 'xccdf_org.ssgproject.content_profile_pci-dss'
@@ -29,34 +30,20 @@ enabled = ['firewalld', 'auditd']
 disabled = ['rsyncd', 'rpcbind', 'avahi-daemon', 'nftables']
 masked = []
 
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
 [[packages]]
 name = 'aide'
 version = '*'
 
+# CCE-83648-6 Plugins for the real-time interface to the audit subsystem
 [[packages]]
 name = 'audispd-plugins'
-version = '*'
-
-[[packages]]
-name = 'audit'
-version = '*'
-
-[[packages]]
-name = 'chrony'
-version = '*'
-
-[[packages]]
-name = 'libselinux'
-version = '*'
-
-[[packages]]
-name = 'logrotate'
-version = '*'
-
-[[packages]]
-name = 'nftables'
-version = '*'
-
-[[packages]]
-name = 'sudo'
 version = '*'

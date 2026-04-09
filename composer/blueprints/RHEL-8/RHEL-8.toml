@@ -83,22 +83,10 @@ partitioning_mode = 'auto-lvm'
 # uid = 888
 # gid = 888
 
-# [[packages]]
-# name = 'bash-completion'
-# version = '*'
-
-# [[packages]]
-# name = 'bind-utils'
-# version = '*'
-
-# [[packages]]
-# name = 'man-pages'
-# version = '*'
-
-# [[packages]]
-# name = 'setools-console'
-# version = '*'
-
-# [[packages]]
-# name = 'vim-enhanced'
-# version = '*'
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'

@@ -6,6 +6,7 @@ name = 'RHEL-9-CIS-L2-SERVER'
 
 # https://www.cisecurity.org/cis-benchmarks
 # https://resources.cisecurity.org/benchmarks
+# https://complianceascode.github.io/content-pages/guides/ssg-rhel9-guide-cis.html
 description = '''
 Red Hat Enterprise Linux (RHEL) 9
 Center for Internet Security® (CIS) Level 2 Server
@@ -19,13 +20,13 @@ distro = 'rhel-9'
 partitioning_mode = 'auto-lvm'
 
 [customizations.kernel]
-append = 'audit_backlog_limit=8192 audit=1'
+append = 'audit=1 audit_backlog_limit=8192'
 
 [customizations.openscap]
 profile_id = 'xccdf_org.ssgproject.content_profile_cis'
 
 [customizations.services]
-enabled = ['crond', 'firewalld', 'systemd-journald', 'rsyslog', 'auditd']
+enabled = ['crond', 'firewalld', 'systemd-journald', 'auditd']
 disabled = ['nftables']
 masked = []
 
@@ -61,30 +62,20 @@ size = 536870912
 mountpoint = '/var/tmp'
 size = 536870912
 
+# Compliance tooling for Security Content Automation Protocol (SCAP) remediation
+[[packages]]
+name = 'openscap-scanner'
+version = '*'
+[[packages]]
+name = 'scap-security-guide'
+version = '*'
+
+# CCE-90843-4 Filesystem Integrity
 [[packages]]
 name = 'aide'
 version = '*'
 
+# CCE-86760-6 Add journald remote log host support
 [[packages]]
-name = 'audit'
-version = '*'
-
-[[packages]]
-name = 'firewalld'
-version = '*'
-
-[[packages]]
-name = 'libselinux'
-version = '*'
-
-[[packages]]
-name = 'nftables'
-version = '*'
-
-[[packages]]
-name = 'rsyslog'
-version = '*'
-
-[[packages]]
-name = 'sudo'
+name = 'systemd-journal-remote'
 version = '*'
