@@ -51,3 +51,7 @@ version = '*'
 [[packages]]
 name = 'systemd-journal-remote'
 version = '*'
+
+[[packages]]
+name = 'firewalld'
+version = '*'

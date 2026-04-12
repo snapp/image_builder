@@ -33,8 +33,8 @@ append = 'audit=1 audit_backlog_limit=8192 fips=1 slub_debug=P page_poison=1 vsy
 profile_id = 'xccdf_org.ssgproject.content_profile_stig'
 
 [customizations.services]
-enabled = ['usbguard', 'sshd', 'rngd', 'fapolicyd', 'firewalld', 'rsyslog', 'auditd']
-disabled = ['kdump', 'autofs', 'debug-shell']
+enabled = ['auditd', 'fapolicyd', 'firewalld', 'rngd', 'rsyslog', 'sshd', 'usbguard']
+disabled = ['autofs', 'debug-shell', 'kdump']
 masked = []
 
 [[customizations.filesystem]]
@@ -120,4 +120,8 @@ version = '*'
 # CCE-84203-9 Rogue USB device protection
 [[packages]]
 name = 'usbguard'
+version = '*'
+
+[[packages]]
+name = 'firewalld'
 version = '*'

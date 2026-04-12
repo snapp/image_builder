@@ -32,7 +32,7 @@ partitioning_mode = 'auto-lvm'
 # ports = ['22:tcp', '80:tcp', 'imap:tcp', '53:tcp', '53:udp', '30000-32767:tcp', '30000-32767:udp']
 
 # [customizations.firewall.services]
-# enabled = ['ftp', 'ntp', 'dhcp']
+# enabled = ['ftp', 'dhcp', 'ntp']
 # disabled = ['telnet']
 
 # Anaconda installer (ISO) image type supports the following installer customizations:
@@ -89,4 +89,8 @@ name = 'openscap-scanner'
 version = '*'
 [[packages]]
 name = 'scap-security-guide'
+version = '*'
+
+[[packages]]
+name = 'firewalld'
 version = '*'
