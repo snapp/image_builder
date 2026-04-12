@@ -339,11 +339,3 @@ pkrvars.hcl  ──►  packer build
 **HashiCorp Packer**
 - [Packer Plugin: vsphere-iso ](https://github.com/vmware/packer-plugin-vsphere/tree/main/docs)
 - [Packer HCL2 configuration language](https://developer.hashicorp.com/packer/docs/templates/hcl_templates)
-
----
-<!--
-_class: lead
-_paginate: false
--->
-
-# Questions?

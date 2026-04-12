@@ -26,8 +26,8 @@ append = 'audit=1 audit_backlog_limit=8192'
 profile_id = 'xccdf_org.ssgproject.content_profile_cis_workstation_l2'
 
 [customizations.services]
-enabled = ['crond', 'firewalld', 'systemd-journald', 'rsyslog', 'auditd']
-disabled = ['nfs-server', 'rpcbind', 'autofs', 'bluetooth', 'nftables']
+enabled = ['auditd', 'crond', 'firewalld', 'systemd-journald']
+disabled = ['autofs', 'bluetooth', 'nfs-server', 'nftables', 'rpcbind']
 masked = []
 
 [[customizations.filesystem]]
@@ -73,4 +73,8 @@ version = '*'
 # CCE-90843-4 Filesystem Integrity
 [[packages]]
 name = 'aide'
+version = '*'
+
+[[packages]]
+name = 'firewalld'
 version = '*'

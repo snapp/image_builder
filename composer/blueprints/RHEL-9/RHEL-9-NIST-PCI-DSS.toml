@@ -26,7 +26,7 @@ append = 'audit=1 audit_backlog_limit=8192'
 profile_id = 'xccdf_org.ssgproject.content_profile_pci-dss'
 
 [customizations.services]
-enabled = ['firewalld', 'auditd']
+enabled = ['auditd', 'firewalld']
 disabled = ['nftables']
 masked = []
 
@@ -52,3 +52,23 @@ version = '*'
 [[packages]]
 name = 'cryptsetup'
 version = '*'
+
+[[packages]]
+name = 'firewalld'
+version = '*'
+
+# CCE-87823-1 Set Default firewalld Zone for Incoming Packets
+[[customizations.files]]
+path = '/etc/firewalld/zones/drop.xml'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''<?xml version="1.0" encoding="utf-8"?>
+<zone target="DROP">
+  <short>Drop</short>
+  <description>Unsolicited incoming network packets are dropped. Incoming packets that are related to outgoing network connections are accepted. Outgoing network connections are allowed.</description>
+  <service name="ssh"/>
+  <service name="freeipa-4"/>
+  <forward/>
+</zone>
+'''

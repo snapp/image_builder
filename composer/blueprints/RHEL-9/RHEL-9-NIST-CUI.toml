@@ -30,8 +30,8 @@ append = 'audit=1 audit_backlog_limit=8192 fips=1'
 profile_id = 'xccdf_org.ssgproject.content_profile_cui'
 
 [customizations.services]
-enabled = ['usbguard', 'fapolicyd', 'firewalld', 'auditd']
-disabled = ['kdump', 'debug-shell']
+enabled = ['auditd', 'fapolicyd', 'firewalld', 'usbguard']
+disabled = ['debug-shell', 'kdump']
 masked = []
 
 [[customizations.filesystem]]
@@ -51,6 +51,11 @@ version = '*'
 name = 'aide'
 version = '*'
 
+# CCE-83454-9 CLI for automatic regular execution
+[[packages]]
+name = 'dnf-automatic'
+version = '*'
+
 # CCE-84224-5 File Access Policy Daemon
 [[packages]]
 name = 'fapolicyd'
@@ -64,4 +69,8 @@ version = '*'
 # CCE-84203-9 Rogue USB device protection
 [[packages]]
 name = 'usbguard'
+version = '*'
+
+[[packages]]
+name = 'firewalld'
 version = '*'
