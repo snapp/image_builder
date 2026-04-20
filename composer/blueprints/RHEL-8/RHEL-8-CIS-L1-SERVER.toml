@@ -42,6 +42,15 @@ version = '*'
 name = 'scap-security-guide'
 version = '*'
 
+# Identity Management (IdM) tooling
+[[packages]]
+name = 'ipa-client'
+version = '*'
+[[packages]]
+name = 'oddjob'git 
+name = 'oddjob-mkhomedir'
+version = '*'
+
 # CCE-90843-4 Filesystem Integrity
 [[packages]]
 name = 'aide'
