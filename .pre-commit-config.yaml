@@ -50,6 +50,7 @@ repos:
           - --no-ensure-ascii  # handle non-ascii
       - id: requirements-txt-fixer
       - id: trailing-whitespace
+
   - repo: local
     hooks:
       - id: packer-fmt
