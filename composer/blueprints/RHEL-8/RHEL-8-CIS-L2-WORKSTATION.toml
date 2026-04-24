@@ -86,6 +86,7 @@ version = '*'
 name = 'aide'
 version = '*'
 
+# CCE-88164-9 Host-based firewall
 [[packages]]
 name = 'firewalld'
 version = '*'
