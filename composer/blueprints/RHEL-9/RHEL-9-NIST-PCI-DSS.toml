@@ -49,6 +49,11 @@ version = '*'
 name = 'oddjob-mkhomedir'
 version = '*'
 
+# POSIX ACLs for fine-grained file permission control beyond standard ugo/rwx
+[[packages]]
+name = "acl"
+version = "*"
+
 # CCE-90843-4 Filesystem Integrity
 [[packages]]
 name = 'aide'

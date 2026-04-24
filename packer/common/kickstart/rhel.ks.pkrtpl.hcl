@@ -81,6 +81,9 @@ ipa-client
 oddjob
 oddjob-mkhomedir
 
+# POSIX ACLs for fine-grained file permission control beyond standard ugo/rwx
+acl
+
 # Enable support for checking if reboot is required
 dnf-utils
 

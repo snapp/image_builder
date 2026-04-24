@@ -61,6 +61,11 @@ version = '*'
 name = 'oddjob-mkhomedir'
 version = '*'
 
+# POSIX ACLs for fine-grained file permission control beyond standard ugo/rwx
+[[packages]]
+name = "acl"
+version = "*"
+
 # CCE-88164-9 Host-based firewall
 [[packages]]
 name = 'firewalld'
