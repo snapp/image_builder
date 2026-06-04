@@ -30,7 +30,7 @@ append = 'audit=1 audit_backlog_limit=8192 fips=1'
 profile_id = 'xccdf_org.ssgproject.content_profile_cui'
 
 [customizations.services]
-enabled = ['usbguard', 'fapolicyd', 'firewalld', 'auditd']
+enabled = ['usbguard', 'fapolicyd', 'firewalld', 'auditd', 'cloud-preconfig']
 disabled = ['debug-shell', 'kdump']
 masked = []
 
@@ -157,3 +157,136 @@ version = '*'
 [[packages]]
 name = 'firewalld'
 version = '*'
+
+# open-vm-tools traditional Guest OS Customization (GOSC) requires Perl
+[[packages]]
+name = 'perl-interpreter'
+version = '*'
+
+# VMware cloud-init and userdata templates for provisioning
+# https://docs.redhat.com/en/documentation/red_hat_satellite/6.19/html-single/provisioning_hosts/index#Using_VMware_Cloud_Init_and_Userdata_Templates_for_Provisioning_vmware-provisioning
+# NOTE - Requires On-Premise Image Builder for file templating
+
+# Cloud-Init: Ensure Satellite certificate is trusted before dynamically include Satellite CloudInit template
+# NOTE - Replace sat-1.lab.example.org with the FQDN of your Satellite Server
+[[customizations.files]]
+path = '/etc/systemd/system/cloud-preconfig.service'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''
+[Unit]
+Description=Update system trust store to include Red Hat Satellite CA certificate
+ConditionPathExists=!/etc/pki/ca-trust/source/anchors/katello-server-ca.pem
+Wants=NetworkManager-wait-online.service
+After=NetworkManager-wait-online.service
+Before=cloud-init.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash -c 'for i in {1..30}; do /usr/bin/curl -fsS -k https://sat-1.lab.example.org/pub/katello-server-ca.crt -o /etc/pki/ca-trust/source/anchors/katello-server-ca.pem && exit 0; sleep 2; done; exit 1'
+ExecStartPost=/usr/bin/update-ca-trust extract
+RemainAfterExit=no
+
+[Install]
+WantedBy=cloud-init.target
+'''
+
+# Cloud-Init: Dynamically include Satellite CloudInit template
+# NOTE - Replace sat-1.lab.example.org with the FQDN of your Satellite Server
+[[customizations.files]]
+path = '/etc/cloud/cloud.cfg.d/10_datasource.cfg'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''
+datasource_list: [NoCloud]
+datasource:
+  NoCloud:
+    seedfrom: https://sat-1.lab.example.org/userdata/
+'''
+
+# Cloud-Init: Disable cloud-init management of network configuration (performed by open-vm-tools)
+[[customizations.files]]
+path = '/etc/cloud/cloud.cfg.d/01_network.cfg'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''
+network:
+  config: disabled
+'''
+
+# Cloud-Init: Reduce active module set
+[[customizations.files]]
+path = '/etc/cloud/cloud.cfg'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''
+cloud_init_modules:
+  - bootcmd
+  - ssh
+
+cloud_config_modules:
+  - runcmd
+
+cloud_final_modules:
+  - scripts-per-once
+  - scripts-per-boot
+  - scripts-per-instance
+  - scripts-user
+  - phone-home
+
+system_info:
+  distro: rhel
+  paths:
+    cloud_dir: /var/lib/cloud
+    templates_dir: /etc/cloud/templates
+  ssh_svcname: sshd
+'''
+
+[[customizations.files]]
+path = '/etc/vmware-tools/tools.conf'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''
+# Increase timeout to 10m to allow time for the Satellite Cloud-Init template to execute
+[deployPkg]
+wait-cloudinit-timeout = 600
+'''
+
+[[customizations.directories]]
+path = '/etc/systemd/system/cloud-init.service.d'
+mode = '0755'
+user = 'root'
+group = 'root'
+
+[[customizations.files]]
+path = '/etc/systemd/system/cloud-init.service.d/10-wait-for-vmware.conf'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''
+[Unit]
+Description=Delay cloud-init until open-vm-tools is finished setting up network
+ConditionPathExists=!/run/vmware-imc/cust.cfg
+'''
+
+[[customizations.directories]]
+path = '/etc/systemd/system/getty@.service.d'
+mode = '0755'
+user = 'root'
+group = 'root'
+
+[[customizations.files]]
+path = '/etc/systemd/system/getty@.service.d/wait-for-cloud-init.conf'
+mode = '0644'
+user = 'root'
+group = 'root'
+data = '''
+[Unit]
+Description=Delay console login prompt until cloud-init has finished
+After=cloud-init.target
+'''
