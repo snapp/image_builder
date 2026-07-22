@@ -17,7 +17,7 @@ Benchmark ID:  xccdf_org.ssgproject.content_benchmark_RHEL-8
 distro = 'rhel-8'
 
 [customizations]
-partitioning_mode = 'auto-lvm'
+partitioning_mode = 'lvm'
 
 [customizations.kernel]
 append = 'audit=1 audit_backlog_limit=8192'
@@ -30,37 +30,70 @@ enabled = ['auditd', 'crond', 'firewalld', 'systemd-journald']
 disabled = ['autofs', 'bluetooth', 'nfs-server', 'nftables', 'rpcbind']
 masked = []
 
-[[customizations.filesystem]]
-mountpoint = "/"
-size = 3221225472
+[[customizations.disk.partitions]]
+type = 'plain'
+mountpoint = '/boot'
+label = 'boot'
+fs_type = 'xfs'
+minsize = '1 GiB'
 
-[[customizations.filesystem]]
-mountpoint = "/boot"
-size = 805306368
+[[customizations.disk.partitions]]
+type = 'lvm'
+name = 'rootvg'
+minsize = '14 GiB'
 
-[[customizations.filesystem]]
-mountpoint = "/home"
-size = 1073741824
+[[customizations.disk.partitions.logical_volumes]]
+name = 'rootlv'
+mountpoint = '/'
+label = 'root'
+fs_type = 'xfs'
+minsize = '4 GiB'
 
-[[customizations.filesystem]]
-mountpoint = "/tmp"
-size = 1073741824
+[[customizations.disk.partitions.logical_volumes]]
+name = 'homelv'
+mountpoint = '/home'
+label = 'home'
+fs_type = 'xfs'
+minsize = '1 GiB'
 
-[[customizations.filesystem]]
-mountpoint = "/var"
-size = 2147483648
+[[customizations.disk.partitions.logical_volumes]]
+name = 'tmplv'
+mountpoint = '/tmp'
+label = 'tmp'
+fs_type = 'xfs'
+minsize = '1 GiB'
 
-[[customizations.filesystem]]
-mountpoint = "/var/log"
-size = 1073741824
+[[customizations.disk.partitions.logical_volumes]]
+name = 'varlv'
+mountpoint = '/var'
+label = 'var'
+fs_type = 'xfs'
+minsize = '2 GiB'
 
-[[customizations.filesystem]]
-mountpoint = "/var/log/audit"
-size = 536870912
+[[customizations.disk.partitions.logical_volumes]]
+name = 'var_loglv'
+mountpoint = '/var/log'
+label = 'varlog'
+fs_type = 'xfs'
+minsize = '1 GiB'
 
-[[customizations.filesystem]]
-mountpoint = "/var/tmp"
-size = 536870912
+[[customizations.disk.partitions.logical_volumes]]
+name = 'var_log_auditlv'
+mountpoint = '/var/log/audit'
+label = 'varlogaudit'
+fs_type = 'xfs'
+minsize = '1 GiB'
+
+[[customizations.disk.partitions.logical_volumes]]
+name = 'var_tmplv'
+mountpoint = '/var/tmp'
+label = 'vartmp'
+fs_type = 'xfs'
+minsize = '1 GiB'
+
+[[customizations.disk.partitions.logical_volumes]]
+fs_type = 'swap'
+minsize = '512 MiB'
 
 # Compliance tooling for Security Content Automation Protocol (SCAP) remediation
 [[packages]]
